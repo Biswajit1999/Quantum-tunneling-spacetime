@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Tunneling in Spacetime — Interactive Simulation</title>
+<meta name="description" content="Live Schrödinger split-operator simulation of quantum tunneling, transmission explorer, and false vacuum decay of spacetime.">
+<style>
+  :root {
+    --bg0: #04060d; --bg1: #0a0f1f; --panel: #0e1426; --panel2: #131a30;
+    --ink: #d7def0; --dim: #8a94b0; --line: #222b4a;
+    --cy: #4fd8eb; --vi: #9d7bff; --am: #ffb454; --rd: #ff6b81; --gn: #5dde9a;
+    font-size: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 70% -10%, #131c3a 0%, var(--bg1) 45%, var(--bg0) 100%);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.65;
+  }
+  header { max-width: 1060px; margin: 0 auto; padding: 64px 24px 18px; }
+  h1 { font-size: 2.2rem; font-weight: 650; letter-spacing: 0.5px;
+       background: linear-gradient(90deg, var(--cy), var(--vi));
+       -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { color: var(--dim); max-width: 760px; margin-top: 10px; }
+  nav { max-width: 1060px; margin: 18px auto 0; padding: 0 24px; display: flex; gap: 14px; flex-wrap: wrap; }
+  nav a { color: var(--cy); text-decoration: none; font-size: 0.86rem; border: 1px solid var(--line);
+          padding: 5px 12px; border-radius: 999px; background: rgba(79,216,235,0.05); }
+  nav a:hover { border-color: var(--cy); }
+  main { max-width: 1060px; margin: 0 auto; padding: 12px 24px 80px; }
+  section { margin-top: 54px; }
+  h2 { font-size: 1.35rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  h2 .tag { font-size: 0.7rem; color: var(--bg0); background: var(--cy); border-radius: 4px;
+            padding: 2px 7px; vertical-align: middle; margin-left: 10px; letter-spacing: 1px; }
+  h3 { font-size: 1.02rem; color: var(--cy); margin: 22px 0 6px; font-weight: 600; }
+  p, li { color: #b9c2da; font-size: 0.95rem; }
+  .lede { color: var(--dim); margin-bottom: 14px; font-size: 0.92rem; }
+  .card { background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+          border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  canvas { display: block; width: 100%; border-radius: 9px; background: #060a16; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 22px; margin-top: 14px; align-items: center; }
+  .ctl { display: flex; flex-direction: column; gap: 2px; min-width: 150px; }
+  .ctl label { font-size: 0.72rem; color: var(--dim); letter-spacing: 0.6px; text-transform: uppercase; }
+  .ctl .val { font-family: Consolas, monospace; font-size: 0.8rem; color: var(--cy); }
+  input[type="range"] { accent-color: var(--cy); width: 160px; }
+  select, button {
+    background: var(--panel2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7px 14px; font-size: 0.86rem; cursor: pointer;
+  }
+  button:hover, select:hover { border-color: var(--cy); }
+  button.primary { background: rgba(79,216,235,0.12); border-color: var(--cy); color: var(--cy); }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .stat { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 9px;
+          padding: 8px 16px; min-width: 120px; }
+  .stat .k { font-size: 0.68rem; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+  .stat .v { font-family: Consolas, monospace; font-size: 1.15rem; }
+  .v.t { color: var(--gn); } .v.r { color: var(--rd); } .v.e { color: var(--am); } .v.n { color: var(--cy); }
+  .note { border-left: 3px solid var(--vi); background: rgba(157,123,255,0.06);
+          padding: 10px 16px; border-radius: 0 9px 9px 0; margin: 14px 0; font-size: 0.9rem; color: #c4baf0; }
+  .eq { font-family: "Cambria Math", Georgia, serif; text-align: center; color: var(--ink);
+        background: rgba(0,0,0,0.25); border: 1px solid var(--line); border-radius: 9px;
+        padding: 10px; margin: 12px 0; font-size: 1.02rem; overflow-x: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+  footer { border-top: 1px solid var(--line); margin-top: 70px; padding: 26px 24px 60px;
+           text-align: center; color: var(--dim); font-size: 0.82rem; }
+  a { color: var(--cy); }
+  ul { padding-left: 22px; margin: 8px 0; }
+  .refs li { margin-bottom: 5px; font-size: 0.87rem; }
+  .legend { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; font-size:0.78rem; color:var(--dim); }
+  .sw { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quantum Tunneling in Spacetime</h1>
+  <p class="sub">A particle meets a wall it cannot classically cross — and crosses it anyway.
+  The same mathematics that lets electrons leak through barriers lets black holes radiate
+  and may one day let the vacuum of spacetime itself decay. Below, the actual Schrödinger
+  equation is being solved live in your browser.</p>
+</header>
+
+<nav>
+  <a href="#lab">Wave-packet lab</a>
+  <a href="#transmission">Transmission explorer</a>
+  <a href="#observatory">Tunneling-time observatory</a>
+  <a href="#vacuum">False vacuum decay</a>
+  <a href="#time">Tunneling time</a>
+  <a href="#relativistic">Relativistic</a>
+  <a href="#refs">References</a>
+</nav>
+
+<main>
+
+<!-- ============================ MODULE 1 ============================ -->
+<section id="lab">
+  <h2>1 · Wave-Packet Laboratory <span class="tag">LIVE SOLVER</span></h2>
+  <p class="lede">A Gaussian wave packet is propagated with the split-operator (Strang) spectral
+  method on a 1024-point grid — unitary, spectrally accurate, with absorbing boundaries.
+  Units: ħ = m = 1.</p>
+
+  <div class="card">
+    <canvas id="cv1" width="1010" height="430"></canvas>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--cy)"></span>|ψ(x)|² probability density</span>
+      <span><span class="sw" style="background:var(--am)"></span>potential V(x)</span>
+      <span><span class="sw" style="background:var(--rd)"></span>mean energy ⟨E⟩</span>
+    </div>
+    <div class="controls">
+      <div class="ctl">
+        <label>Scenario</label>
+        <select id="preset">
+          <option value="square" selected>Square barrier</option>
+          <option value="double">Double barrier (resonant)</option>
+          <option value="step">Potential step</option>
+          <option value="free">Free packet</option>
+        </select>
+      </div>
+      <div class="ctl"><label>Barrier height V₀ <span class="val" id="v0v"></span></label>
+        <input type="range" id="v0" min="0.1" max="4" step="0.05" value="1.0"></div>
+      <div class="ctl"><label>Barrier width a <span class="val" id="wv"></span></label>
+        <input type="range" id="w" min="0.5" max="14" step="0.25" value="5"></div>
+      <div class="ctl"><label>Packet momentum k₀ <span class="val" id="k0v"></span></label>
+        <input type="range" id="k0" min="0.4" max="3" step="0.02" value="1.2"></div>
+      <div class="ctl"><label>Sim speed <span class="val" id="spv"></span></label>
+        <input type="range" id="speed" min="3" max="36" step="3" value="15"></div>
+      <button class="primary" id="runbtn">Pause</button>
+      <button id="resetbtn">Reset</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Energy ⟨E⟩</div><div class="v e" id="Ev">–</div></div>
+      <div class="stat"><div class="k">Transmitted</div><div class="v t" id="Tv">–</div></div>
+      <div class="stat"><div class="k">Reflected</div><div class="v r" id="Rv">–</div></div>
+      <div class="stat"><div class="k">Norm</div><div class="v n" id="Nv">–</div></div>
+      <div class="stat"><div class="k">Regime</div><div class="v" id="regime" style="color:var(--vi)">–</div></div>
+    </div>
+  </div>
+
+  <h3>What to try</h3>
+  <ul>
+    <li><b>Deep tunneling:</b> set V₀ = 2.0, a = 5, k₀ = 1.2 (E ≈ 0.72 &lt; V₀). A few percent
+        of the probability leaks through a classically forbidden wall.</li>
+    <li><b>Exponential suppression:</b> nudge the width up and watch transmission collapse —
+        T ~ e<sup>−2κa</sup>.</li>
+    <li><b>Above-barrier reflection:</b> set E &gt; V₀ (raise k₀). Classically T would be 1;
+        the wave still partially reflects.</li>
+    <li><b>Resonant tunneling:</b> choose the double barrier and sweep k₀ slowly — at quasi-bound-state
+        energies, transmission spikes even though each barrier alone is nearly opaque. This is how
+        resonant-tunneling diodes work.</li>
+  </ul>
+
+  <div class="note"><b>2025 Nobel Prize.</b> Tunneling is not only microscopic: Clarke, Devoret and
+  Martinis showed in 1985 that the collective phase of a Josephson junction — the coordinated motion
+  of billions of Cooper pairs — tunnels out of its metastable well. That discovery of macroscopic
+  quantum tunneling earned the 2025 Nobel Prize in Physics and is the foundation of superconducting
+  quantum computers.</div>
+
+  <div class="eq">ψ(t+Δt) = e<sup>−iV Δt/2</sup> · 𝓕⁻¹ e<sup>−i k²Δt/2</sup> 𝓕 · e<sup>−iV Δt/2</sup> ψ(t) + 𝒪(Δt³)</div>
+</section>
+
+<!-- ============================ MODULE 2 ============================ -->
+<section id="transmission">
+  <h2>2 · Transmission Explorer <span class="tag">EXACT T(E)</span></h2>
+  <p class="lede">The exact analytic transmission probability through a square barrier,
+  as a function of incident energy. Toggle the log scale to see the brutal exponential
+  suppression below the barrier — and the Ramsauer–Townsend-like oscillations above it.</p>
+
+  <div class="card">
+    <canvas id="cv2" width="1010" height="380"></canvas>
+    <div class="controls">
+      <div class="ctl"><label>Barrier height V₀ <span class="val" id="v02v"></span></label>
+        <input type="range" id="v02" min="0.2" max="4" step="0.05" value="1.5"></div>
+      <div class="ctl"><label>Barrier width a <span class="val" id="a2v"></span></label>
+        <input type="range" id="a2" min="0.5" max="12" step="0.25" value="4"></div>
+      <button id="logbtn">Log scale: OFF</button>
+    </div>
+  </div>
+
+  <div class="eq">
+    E &lt; V₀ :&nbsp; T = [ 1 + V₀² sinh²(κa) / 4E(V₀−E) ]⁻¹ ,&nbsp; κ = √(2(V₀−E)) &nbsp;&nbsp;|&nbsp;&nbsp;
+    E &gt; V₀ :&nbsp; T = [ 1 + V₀² sin²(k′a) / 4E(E−V₀) ]⁻¹
+  </div>
+</section>
+
+<!-- ====================== MODULE 3: OBSERVATORY ====================== -->
+<section id="observatory">
+  <h2>3 · Tunneling-Time Observatory <span class="tag">UNIQUE INSTRUMENT</span></h2>
+  <p class="lede">The open question of the field, turned into an instrument you operate.
+  A spin-½ wave packet tunnels while a weak magnetic field, confined to the barrier,
+  makes its spin precess — the spin <i>is</i> the clock (Baz'–Rybachenko–Büttiker Larmor
+  clock). The solver propagates a two-component spinor whose components see Zeeman-split
+  barriers V₀ ∓ ω/2; the transmitted spin orientation is then converted into the two
+  Larmor times. To our knowledge, no other public web tool runs this experiment live.</p>
+
+  <div class="card">
+    <canvas id="cvo" width="1010" height="430"></canvas>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--cy)"></span>|ψ|² (both spin components)</span>
+      <span><span class="sw" style="background:var(--am)"></span>barrier with Zeeman splitting</span>
+      <span><span class="sw" style="background:var(--gn)"></span>transmitted-spin dial (top right)</span>
+    </div>
+    <div class="controls">
+      <div class="ctl"><label>Barrier height V₀ <span class="val" id="ov0v"></span></label>
+        <input type="range" id="ov0" min="0.3" max="3.5" step="0.05" value="1.2"></div>
+      <div class="ctl"><label>Barrier width a <span class="val" id="oav"></span></label>
+        <input type="range" id="oa" min="0.5" max="9" step="0.25" value="2.5"></div>
+      <div class="ctl"><label>Packet momentum k₀ <span class="val" id="ok0v"></span></label>
+        <input type="range" id="ok0" min="0.4" max="2.4" step="0.02" value="1.0"></div>
+      <div class="ctl"><label>Larmor frequency ω <span class="val" id="oomv"></span></label>
+        <input type="range" id="oom" min="0.01" max="0.4" step="0.01" value="0.06"></div>
+      <button class="primary" id="orunbtn">Pause</button>
+      <button id="oresetbtn">Reset</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">τ<sub>y</sub> measured</div><div class="v t" id="otyM">–</div></div>
+      <div class="stat"><div class="k">τ<sub>y</sub> analytic</div><div class="v n" id="otyA">–</div></div>
+      <div class="stat"><div class="k">τ<sub>z</sub> measured</div><div class="v r" id="otzM">–</div></div>
+      <div class="stat"><div class="k">τ<sub>z</sub> analytic</div><div class="v n" id="otzA">–</div></div>
+      <div class="stat"><div class="k">phase time τ<sub>φ</sub></div><div class="v e" id="otphi">–</div></div>
+      <div class="stat"><div class="k">Büttiker–Landauer</div><div class="v" id="otbl" style="color:var(--vi)">–</div></div>
+      <div class="stat"><div class="k">Transmission</div><div class="v t" id="oT">–</div></div>
+    </div>
+  </div>
+
+  <h3>How to operate it</h3>
+  <ul>
+    <li><b>Protocol:</b> the spin starts along +x. Inside the barrier it precesses about the
+        field (z); transmission also rotates it <i>toward</i> z because the spin-up component sees
+        a slightly lower barrier. The transmitted-spin readout is taken at peak transmitted flux:
+        τ<sub>y</sub> = −⟨σ<sub>y</sub>⟩/ω (precession clock) and τ<sub>z</sub> = ⟨σ<sub>z</sub>⟩/ω
+        (back-action clock).</li>
+    <li><b>Weak-measurement limit:</b> shrink ω toward 0.01 and the measured times converge to the
+        analytic weak values τ<sub>y</sub> = −ħ ∂(arg t)/∂V₀, τ<sub>z</sub> = −ħ ∂(ln|t|)/∂V₀
+        (Büttiker 1983; Steinberg 1995). Crank ω up and watch back-action distort the clock —
+        the measurement disturbing the measured.</li>
+    <li><b>Opaque-barrier check:</b> for κa ≫ 1, τ<sub>z</sub> → τ<sub>BL</sub> = ma/ħκ while
+        τ<sub>y</sub> and τ<sub>φ</sub> saturate — the Hartman effect, live, in the curves below.</li>
+  </ul>
+
+  <div class="card" style="margin-top:18px">
+    <canvas id="cvo2" width="1010" height="360"></canvas>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--cy)"></span>τ<sub>φ</sub> phase time</span>
+      <span><span class="sw" style="background:var(--gn)"></span>τ<sub>y</sub> Larmor precession</span>
+      <span><span class="sw" style="background:var(--rd)"></span>τ<sub>z</sub> back-action</span>
+      <span><span class="sw" style="background:var(--vi)"></span>τ<sub>BL</sub> = a/κ</span>
+      <span><span class="sw" style="background:#777"></span>free flight a/v</span>
+      <span style="margin-left:auto">clock times vs barrier width, at the V₀ and E set above</span>
+    </div>
+  </div>
+
+  <div class="note"><b>Why this is the frontier.</b> These are precisely the quantities the
+  attoclock community has fought over for a decade. The 2024–2025 reanalyses
+  (arXiv:2402.14431, arXiv:2503.07859) conclude the attoclock reads a non-local, phase-time-like
+  quantity while Larmor-type clocks read a local, weak-value time — both visible above as
+  different curves derived from the <i>same</i> transmission amplitude. This module reproduces, in
+  a browser, the conceptual experiment that distinction is based on.</div>
+</section>
+
+<!-- ============================ MODULE 4 ============================ -->
+<section id="vacuum">
+  <h2>4 · False Vacuum Decay <span class="tag">SPACETIME</span></h2>
+  <p class="lede">Now scale tunneling up to the universe. If our vacuum is only a <i>local</i>
+  minimum of some field potential, quantum tunneling nucleates bubbles of true vacuum
+  (Coleman 1977). Each bubble wall accelerates toward the speed of light, converting
+  everything it touches. Below: a stochastic visual analogue — nucleation events appear at a
+  rate Γ ∝ e<sup>−B</sup>, then grow and percolate.</p>
+
+  <div class="card">
+    <canvas id="cv3" width="1010" height="430"></canvas>
+    <div class="controls">
+      <div class="ctl"><label>Bounce action B (barrier) <span class="val" id="ratev"></span></label>
+        <input type="range" id="rate" min="1" max="10" step="0.1" value="6"></div>
+      <button class="primary" id="vacrun">Pause</button>
+      <button id="vacreset">Reset universe</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">True vacuum fraction</div><div class="v t" id="fracv">0.0%</div></div>
+      <div class="stat"><div class="k">Bubbles nucleated</div><div class="v n" id="bubv">0</div></div>
+    </div>
+  </div>
+
+  <h3>From chalkboard to laboratory</h3>
+  <p>False vacuum decay is no longer purely theoretical speculation about doomsday. Since 2024 it
+  has been emulated in ferromagnetic-superfluid cold atoms (Zenesini et al., Nat. Phys. 2024),
+  cold-atom lattice gauge theories, Rydberg atom arrays (arXiv:2512.04637), and a 5,564-qubit
+  D-Wave annealer where true-vacuum bubbles formed, moved and merged in real time (2025). A key
+  methodological advance — suppressing spurious edge nucleation with boundary "trenches"
+  (arXiv:2504.02829) — has made bulk, cosmologically-relevant nucleation observable.</p>
+
+  <h3>Hawking radiation as tunneling</h3>
+  <p>The horizon of a black hole is itself a tunneling barrier. In the Parikh–Wilczek picture
+  (2000), a quantum tunnels outward across the horizon while the hole shrinks to conserve energy;
+  the emission rate Γ ∝ e<sup>−8πωM(1−ω/2M)</sup> reproduces the Hawking temperature
+  <i>plus</i> non-thermal corrections that carry correlations — an active line of argument
+  (2025) that black-hole evaporation can be unitary. One mathematical object — the imaginary
+  part of an action — connects the wave packet in module 1 to the evaporation of a black hole.</p>
+</section>
+
+<!-- ============================ ESSAYS ============================ -->
+<section id="time">
+  <h2>5 · How Long Does Tunneling Take?</h2>
+  <p>The transmitted packet in module 1 emerges suspiciously early. Hartman showed in 1962 that
+  the group delay <i>saturates</i> with barrier width — naively implying superluminal traversal.
+  It doesn't: the transmitted pulse is a reshaped, attenuated replica of the incident packet's
+  leading edge, and no signal outruns light. But the question "what does a clock strapped to the
+  particle read?" stayed open for a century.</p>
+  <p>Modern attoclock experiments use the rotating field of an elliptically polarized laser as a
+  clock hand while an electron tunnel-ionizes. After a decade of contradictory claims, 2024–2025
+  analyses (arXiv:2402.14431, arXiv:2503.07859) indicate the attoclock measures a <i>non-local</i>
+  time akin to the Wigner phase time, while Larmor-type local clocks — interpreted through
+  Steinberg's weak values — give a finite, position-resolved time density inside the barrier.
+  Different clocks, different answers, one consistent quantum mechanics. Module 3 above puts
+  both clock families in your hands: run the Larmor experiment, then compare its reading to
+  the phase time computed from the same amplitude.</p>
+</section>
+
+<section id="relativistic">
+  <h2>6 · When Relativity Joins In</h2>
+  <p>Everything above is non-relativistic. Make the particle a Dirac fermion and tunneling
+  changes character: for a sufficiently high step (V₀ − E &gt; 2mc²) the wavefunction inside the
+  barrier <i>oscillates</i> instead of decaying — the Klein paradox. For massless Dirac particles
+  at normal incidence, transmission is exactly 1 through any electrostatic barrier; chirality
+  forbids backscattering. Graphene's carriers obey precisely this equation, which is why Klein
+  tunneling was first seen not at CERN but in carbon sheets (Katsnelson, Novoselov &amp; Geim 2006;
+  Young &amp; Kim 2009). Recent proposals reach new Klein regimes by modulating barriers in
+  <i>time</i> as well as space (arXiv:2510.21154) — and in 1+1D, a curved spacetime metric can be
+  mapped into a local phase of the flat-space Dirac field, making tabletop analogue gravity with
+  tunneling experiments possible.</p>
+  <div class="note">The simulator in module 1 is honest about its limits: it solves the
+  Schrödinger equation. Where its predictions would fail — Klein zone, pair creation,
+  Zitterbewegung — is exactly where doc <code>03-relativistic-tunneling.md</code> in this
+  repository picks up.</div>
+</section>
+
+<section id="refs">
+  <h2>7 · Selected References</h2>
+  <ul class="refs">
+    <li>Coleman, <i>Fate of the false vacuum</i>, Phys. Rev. D 15, 2929 (1977); Coleman &amp; De Luccia, Phys. Rev. D 21, 3305 (1980).</li>
+    <li>Parikh &amp; Wilczek, <i>Hawking radiation as tunneling</i>, Phys. Rev. Lett. 85, 5042 (2000).</li>
+    <li>Hartman, J. Appl. Phys. 33, 3427 (1962); Büttiker &amp; Landauer, Phys. Rev. Lett. 49, 1739 (1982).</li>
+    <li><a href="https://arxiv.org/abs/2402.14431">arXiv:2402.14431</a> — universal behavior of tunneling time in attoclock measurements (2024).</li>
+    <li><a href="https://arxiv.org/abs/2503.07859">arXiv:2503.07859</a> — <i>In Search of Lost Tunneling Time</i> (2025).</li>
+    <li><a href="https://arxiv.org/abs/2504.02829">arXiv:2504.02829</a> — cold-atom simulators of vacuum decay, edge-nucleation control (2025).</li>
+    <li><a href="https://arxiv.org/abs/2512.04637">arXiv:2512.04637</a> — false vacuum decay in a Rydberg atom array.</li>
+    <li><a href="https://www.nature.com/articles/srep40346">Sci. Rep. 7, 40346</a> — mapping curved spacetimes into Dirac spinors.</li>
+    <li>Katsnelson, Novoselov &amp; Geim, Nat. Phys. 2, 620 (2006) — Klein tunneling in graphene.</li>
+    <li>2025 Nobel Prize in Physics — Clarke, Devoret &amp; Martinis, macroscopic quantum tunneling.</li>
+  </ul>
+  <p style="margin-top:10px; font-size:0.85rem; color:var(--dim)">Full annotated bibliography in
+  <code>docs/references.md</code> of this repository.</p>
+</section>
+
+</main>
+
+<footer>
+  Quantum Tunneling in Spacetime · split-operator solver running live, no libraries, no server ·
+  MIT License
+</footer>
+
+<script>
+"use strict";
+/* ================================================================
+   MODULE 1 — 1D TDSE split-operator solver (ħ = m = 1)
+   ================================================================ */
+const N = 1024, L = 240, dx = L / N, X0 = -L / 2;
+const DT = 0.02, SIGMA = 10, XPACK = -62;   // dt=0.02: converged for deep tunneling (checked vs Python suite)
+const NMASK = 56;                       // absorbing-edge cells per side
+
+const x = new Float64Array(N), k = new Float64Array(N);
+for (let i = 0; i < N; i++) {
+  x[i] = X0 + i * dx;
+  const m = (i < N / 2) ? i : i - N;
+  k[i] = 2 * Math.PI * m / L;
+}
+
+// state
+const psiR = new Float64Array(N), psiI = new Float64Array(N);
+const V = new Float64Array(N);
+const expVr = new Float64Array(N), expVi = new Float64Array(N);   // e^{-iV dt/2}
+const expKr = new Float64Array(N), expKi = new Float64Array(N);   // e^{-i k^2 dt/2}
+const mask = new Float64Array(N);
+let absorbL = 0, absorbR = 0, running = true, params = {};
+
+for (let i = 0; i < N; i++) {
+  const d = Math.min(i, N - 1 - i);
+  mask[i] = d >= NMASK ? 1 : 1 - 0.045 * Math.pow((NMASK - d) / NMASK, 3);
+}
+for (let i = 0; i < N; i++) {
+  const th = -0.5 * k[i] * k[i] * DT;
+  expKr[i] = Math.cos(th); expKi[i] = Math.sin(th);
+}
+
+function fft(re, im, inv) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      let t = re[i]; re[i] = re[j]; re[j] = t;
+      t = im[i]; im[i] = im[j]; im[j] = t;
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = (inv ? 2 : -2) * Math.PI / len;
+    const wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
+    for (let i = 0; i < n; i += len) {
+      let cr = 1, ci = 0;
+      for (let j = 0; j < half; j++) {
+        const a = i + j, b = a + half;
+        const vr = re[b] * cr - im[b] * ci;
+        const vi = re[b] * ci + im[b] * cr;
+        re[b] = re[a] - vr; im[b] = im[a] - vi;
+        re[a] += vr;        im[a] += vi;
+        const ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
+      }
+    }
+  }
+  if (inv) for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
+}
+
+function buildPotential() {
+  const p = params;
+  V.fill(0);
+  if (p.preset === "square") {
+    for (let i = 0; i < N; i++) if (Math.abs(x[i]) <= p.w / 2) V[i] = p.v0;
+  } else if (p.preset === "step") {
+    for (let i = 0; i < N; i++) if (x[i] >= 0) V[i] = p.v0;
+  } else if (p.preset === "double") {
+    const g = 8;  // well width between barriers
+    for (let i = 0; i < N; i++) {
+      const ax = Math.abs(x[i]);
+      if (ax >= g / 2 && ax <= g / 2 + p.w) V[i] = p.v0;
+    }
+  }
+  for (let i = 0; i < N; i++) {
+    const th = -0.5 * V[i] * DT;
+    expVr[i] = Math.cos(th); expVi[i] = Math.sin(th);
+  }
+}
+
+function initPacket() {
+  const norm = Math.pow(2 * Math.PI * SIGMA * SIGMA, -0.25);
+  for (let i = 0; i < N; i++) {
+    const g = norm * Math.exp(-Math.pow(x[i] - XPACK, 2) / (4 * SIGMA * SIGMA));
+    psiR[i] = g * Math.cos(params.k0 * x[i]);
+    psiI[i] = g * Math.sin(params.k0 * x[i]);
+  }
+  absorbL = 0; absorbR = 0;
+}
+
+function step() {
+  // half potential kick
+  for (let i = 0; i < N; i++) {
+    const r = psiR[i] * expVr[i] - psiI[i] * expVi[i];
+    psiI[i] = psiR[i] * expVi[i] + psiI[i] * expVr[i];
+    psiR[i] = r;
+  }
+  fft(psiR, psiI, false);
+  for (let i = 0; i < N; i++) {
+    const r = psiR[i] * expKr[i] - psiI[i] * expKi[i];
+    psiI[i] = psiR[i] * expKi[i] + psiI[i] * expKr[i];
+    psiR[i] = r;
+  }
+  fft(psiR, psiI, true);
+  for (let i = 0; i < N; i++) {
+    const r = psiR[i] * expVr[i] - psiI[i] * expVi[i];
+    psiI[i] = psiR[i] * expVi[i] + psiI[i] * expVr[i];
+    psiR[i] = r;
+  }
+  // absorbing mask + flux tally
+  for (let i = 0; i < N; i++) {
+    if (mask[i] < 1) {
+      const p0 = (psiR[i] * psiR[i] + psiI[i] * psiI[i]) * dx;
+      psiR[i] *= mask[i]; psiI[i] *= mask[i];
+      const lost = p0 - (psiR[i] * psiR[i] + psiI[i] * psiI[i]) * dx;
+      if (i < N / 2) absorbL += lost; else absorbR += lost;
+    }
+  }
+}
+
+function probes() {
+  const p = params;
+  let xl, xr;
+  if (p.preset === "square") { xl = -p.w / 2 - 2; xr = p.w / 2 + 2; }
+  else if (p.preset === "double") { xl = -(8 / 2 + p.w) - 2; xr = 8 / 2 + p.w + 2; }
+  else if (p.preset === "step") { xl = -2; xr = 2; }
+  else { xl = -2; xr = 2; }
+  let T = absorbR, R = absorbL, norm = absorbL + absorbR;
+  for (let i = 0; i < N; i++) {
+    const pr = (psiR[i] * psiR[i] + psiI[i] * psiI[i]) * dx;
+    norm += pr;
+    if (x[i] > xr) T += pr;
+    else if (x[i] < xl) R += pr;
+  }
+  return { T, R, norm };
+}
+
+/* ---------- drawing ---------- */
+const cv1 = document.getElementById("cv1"), c1 = cv1.getContext("2d");
+const VMAXPLOT = 4.4;
+let psiScale = null;
+
+function draw1() {
+  const W = cv1.width, H = cv1.height;
+  c1.clearRect(0, 0, W, H);
+  // subtle grid
+  c1.strokeStyle = "rgba(60,75,130,0.18)"; c1.lineWidth = 1;
+  for (let gx = 0; gx <= 8; gx++) {
+    c1.beginPath(); c1.moveTo(gx * W / 8, 0); c1.lineTo(gx * W / 8, H); c1.stroke();
+  }
+  const xToPx = xx => (xx - X0) / L * W;
+  const base = H - 30;
+
+  // potential (filled)
+  c1.beginPath(); c1.moveTo(0, base);
+  for (let i = 0; i < N; i++) c1.lineTo(xToPx(x[i]), base - (V[i] / VMAXPLOT) * (H - 70));
+  c1.lineTo(W, base);
+  c1.closePath();
+  c1.fillStyle = "rgba(255,180,84,0.13)"; c1.fill();
+  c1.strokeStyle = "rgba(255,180,84,0.8)"; c1.lineWidth = 1.6; c1.stroke();
+
+  // energy line
+  const E = 0.5 * params.k0 * params.k0 + 1 / (8 * SIGMA * SIGMA);
+  const ey = base - (E / VMAXPLOT) * (H - 70);
+  c1.strokeStyle = "rgba(255,107,129,0.85)"; c1.setLineDash([7, 6]); c1.lineWidth = 1.2;
+  c1.beginPath(); c1.moveTo(0, ey); c1.lineTo(W, ey); c1.stroke(); c1.setLineDash([]);
+
+  // |psi|^2 with glow fill
+  if (psiScale === null) {
+    let m = 0;
+    for (let i = 0; i < N; i++) m = Math.max(m, psiR[i] * psiR[i] + psiI[i] * psiI[i]);
+    psiScale = m * 1.15;
+  }
+  const grad = c1.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "rgba(79,216,235,0.55)");
+  grad.addColorStop(1, "rgba(79,216,235,0.04)");
+  c1.beginPath(); c1.moveTo(0, base);
+  for (let i = 0; i < N; i++) {
+    const p = (psiR[i] * psiR[i] + psiI[i] * psiI[i]) / psiScale;
+    c1.lineTo(xToPx(x[i]), base - Math.min(p, 1.25) * (H - 80));
+  }
+  c1.lineTo(W, base); c1.closePath();
+  c1.fillStyle = grad; c1.fill();
+  c1.strokeStyle = "rgba(79,216,235,0.95)"; c1.lineWidth = 1.8;
+  c1.beginPath();
+  for (let i = 0; i < N; i++) {
+    const p = (psiR[i] * psiR[i] + psiI[i] * psiI[i]) / psiScale;
+    const px = xToPx(x[i]), py = base - Math.min(p, 1.25) * (H - 80);
+    i === 0 ? c1.moveTo(px, py) : c1.lineTo(px, py);
+  }
+  c1.stroke();
+
+  // absorbing zones
+  c1.fillStyle = "rgba(255,255,255,0.025)";
+  c1.fillRect(0, 0, xToPx(X0 + NMASK * dx), H);
+  c1.fillRect(xToPx(X0 + (N - NMASK) * dx), 0, W, H);
+}
+
+/* ---------- UI wiring ---------- */
+const $ = id => document.getElementById(id);
+function readParams() {
+  params = {
+    preset: $("preset").value,
+    v0: parseFloat($("v0").value),
+    w: parseFloat($("w").value),
+    k0: parseFloat($("k0").value),
+    speed: parseInt($("speed").value, 10)
+  };
+  $("v0v").textContent = params.v0.toFixed(2);
+  $("wv").textContent = params.w.toFixed(2);
+  $("k0v").textContent = params.k0.toFixed(2);
+  $("spv").textContent = "×" + params.speed;
+}
+function resetSim() { readParams(); buildPotential(); initPacket(); psiScale = null; }
+["preset", "v0", "w", "k0"].forEach(id => $(id).addEventListener("input", resetSim));
+$("speed").addEventListener("input", readParams);
+$("runbtn").addEventListener("click", () => {
+  running = !running;
+  $("runbtn").textContent = running ? "Pause" : "Run";
+});
+$("resetbtn").addEventListener("click", resetSim);
+
+function tick() {
+  if (running) for (let s = 0; s < params.speed; s++) step();
+  draw1();
+  const { T, R, norm } = probes();
+  const E = 0.5 * params.k0 * params.k0 + 1 / (8 * SIGMA * SIGMA);
+  $("Ev").textContent = E.toFixed(3);
+  $("Tv").textContent = (T * 100).toFixed(2) + "%";
+  $("Rv").textContent = (R * 100).toFixed(2) + "%";
+  $("Nv").textContent = norm.toFixed(4);
+  $("regime").textContent =
+    params.preset === "free" ? "free" :
+    E < params.v0 ? "TUNNELING" : "over-barrier";
+  requestAnimationFrame(tick);
+}
+resetSim();
+requestAnimationFrame(tick);
+
+/* ================================================================
+   MODULE 2 — analytic T(E) for a square barrier
+   ================================================================ */
+const cv2 = document.getElementById("cv2"), c2 = cv2.getContext("2d");
+let logScale = false;
+
+function Tsquare(E, V0, a) {
+  if (E <= 0) return 0;
+  const d = E - V0;
+  if (Math.abs(d) < 1e-9) {
+    const t = 1 + 0.5 * V0 * a * a;          // E -> V0 limit
+    return 1 / t;
+  }
+  if (d < 0) {
+    const kap = Math.sqrt(-2 * d), s = Math.sinh(kap * a);
+    return 1 / (1 + (V0 * V0 * s * s) / (4 * E * (V0 - E)));
+  }
+  const kp = Math.sqrt(2 * d), s = Math.sin(kp * a);
+  return 1 / (1 + (V0 * V0 * s * s) / (4 * E * d));
+}
+
+function draw2() {
+  const V0 = parseFloat($("v02").value), a = parseFloat($("a2").value);
+  $("v02v").textContent = V0.toFixed(2);
+  $("a2v").textContent = a.toFixed(2);
+  const W = cv2.width, H = cv2.height, mL = 56, mB = 36, mT = 16, mR = 14;
+  const pw = W - mL - mR, ph = H - mT - mB;
+  c2.clearRect(0, 0, W, H);
+  const Emax = Math.max(2.5 * V0, 3);
+  const Tmin = 1e-12;
+  const yOf = T => {
+    if (!logScale) return mT + (1 - T) * ph;
+    const lt = Math.log10(Math.max(T, Tmin));
+    return mT + (-lt / 12) * ph;            // 1 -> top, 1e-12 -> bottom
+  };
+  // axes + gridlines
+  c2.strokeStyle = "rgba(60,75,130,0.35)"; c2.lineWidth = 1;
+  c2.font = "11px Consolas, monospace"; c2.fillStyle = "#8a94b0";
+  const yticks = logScale ? [1, 1e-3, 1e-6, 1e-9, 1e-12] : [1, 0.75, 0.5, 0.25, 0];
+  yticks.forEach(t => {
+    const y = yOf(t);
+    c2.beginPath(); c2.moveTo(mL, y); c2.lineTo(W - mR, y); c2.stroke();
+    c2.fillText(logScale ? "1e" + Math.round(Math.log10(Math.max(t, Tmin))) : t.toFixed(2), 8, y + 4);
+  });
+  for (let i = 0; i <= 5; i++) {
+    const Ex = Emax * i / 5, px = mL + pw * i / 5;
+    c2.beginPath(); c2.moveTo(px, mT); c2.lineTo(px, H - mB); c2.stroke();
+    c2.fillText(Ex.toFixed(1), px - 10, H - mB + 16);
+  }
+  c2.fillText("E (ħ=m=1)", W / 2 - 30, H - 6);
+  // barrier-height marker
+  const pV0 = mL + (V0 / Emax) * pw;
+  c2.strokeStyle = "rgba(255,180,84,0.8)"; c2.setLineDash([6, 5]);
+  c2.beginPath(); c2.moveTo(pV0, mT); c2.lineTo(pV0, H - mB); c2.stroke(); c2.setLineDash([]);
+  c2.fillStyle = "rgba(255,180,84,0.9)"; c2.fillText("E = V₀", pV0 + 5, mT + 12);
+  // curve
+  c2.strokeStyle = "#4fd8eb"; c2.lineWidth = 2;
+  c2.beginPath();
+  const M = 600;
+  for (let i = 1; i <= M; i++) {
+    const E = Emax * i / M;
+    const px = mL + (E / Emax) * pw, py = yOf(Tsquare(E, V0, a));
+    i === 1 ? c2.moveTo(px, py) : c2.lineTo(px, py);
+  }
+  c2.stroke();
+}
+["v02", "a2"].forEach(id => $(id).addEventListener("input", draw2));
+$("logbtn").addEventListener("click", () => {
+  logScale = !logScale;
+  $("logbtn").textContent = "Log scale: " + (logScale ? "ON" : "OFF");
+  draw2();
+});
+draw2();
+
+/* ================================================================
+   MODULE 3 — Tunneling-Time Observatory (Larmor-clock spinor solver)
+   Physics validated headlessly against Büttiker's analytic times:
+   tau_y = -d(arg t)/dV0, tau_z = -d(ln|t|)/dV0; tau_z -> a/kappa opaque.
+   ================================================================ */
+const ouR = new Float64Array(N), ouI = new Float64Array(N);   // spin-up   (sees V0 - w/2)
+const odR = new Float64Array(N), odI = new Float64Array(N);   // spin-down (sees V0 + w/2)
+const oV  = new Float64Array(N);
+const oeUr = new Float64Array(N), oeUi = new Float64Array(N);
+const oeDr = new Float64Array(N), oeDi = new Float64Array(N);
+let oAbsL = 0, oAbsR = 0, oRun = true, oP = {}, oPwMax = -1, oSnap = null;
+
+function tAmp(E, V0, a) {          // complex transmission amplitude, barrier width a
+  const kk = Math.sqrt(2 * E);
+  let Dre, Dim;
+  if (Math.abs(E - V0) < 1e-9) { Dre = 1; Dim = -0.5 * kk * a; }
+  else if (E < V0) {
+    const kp = Math.sqrt(2 * (V0 - E));
+    Dre = Math.cosh(kp * a); Dim = 0.5 * (kp / kk - kk / kp) * Math.sinh(kp * a);
+  } else {
+    const q = Math.sqrt(2 * (E - V0));
+    Dre = Math.cos(q * a); Dim = -0.5 * (q / kk + kk / q) * Math.sin(q * a);
+  }
+  const den = Dre * Dre + Dim * Dim;
+  const c = Math.cos(-kk * a), s = Math.sin(-kk * a);
+  return { re: (c * Dre + s * Dim) / den, im: (s * Dre - c * Dim) / den };
+}
+function argDiff(t1, t2) {         // arg(t1) - arg(t2), wrap-safe
+  return Math.atan2(t1.im * t2.re - t1.re * t2.im, t1.re * t2.re + t1.im * t2.im);
+}
+function clockTimes(E, V0, a) {
+  const dV = 1e-5 * Math.max(V0, 1), dE = 1e-5 * Math.max(E, 0.1);
+  const ap = tAmp(E, V0 + dV, a), am = tAmp(E, V0 - dV, a);
+  const ty = -argDiff(ap, am) / (2 * dV);
+  const tz = -0.5 * Math.log((ap.re ** 2 + ap.im ** 2) / (am.re ** 2 + am.im ** 2)) / (2 * dV);
+  const tphi = argDiff(tAmp(E + dE, V0, a), tAmp(E - dE, V0, a)) / (2 * dE) + a / Math.sqrt(2 * E);
+  const t0 = tAmp(E, V0, a);
+  return { ty, tz, tphi,
+           tbl: E < V0 ? a / Math.sqrt(2 * (V0 - E)) : NaN,
+           T: t0.re ** 2 + t0.im ** 2 };
+}
+
+function oRead() {
+  oP = { v0: +$("ov0").value, a: +$("oa").value, k0: +$("ok0").value, om: +$("oom").value };
+  $("ov0v").textContent = oP.v0.toFixed(2);
+  $("oav").textContent  = oP.a.toFixed(2);
+  $("ok0v").textContent = oP.k0.toFixed(2);
+  $("oomv").textContent = oP.om.toFixed(2);
+}
+function oBuild() {
+  for (let i = 0; i < N; i++) {
+    const inb = Math.abs(x[i]) <= oP.a / 2;
+    oV[i] = inb ? oP.v0 : 0;
+    let th = -0.5 * (oV[i] - (inb ? oP.om / 2 : 0)) * DT;
+    oeUr[i] = Math.cos(th); oeUi[i] = Math.sin(th);
+    th = -0.5 * (oV[i] + (inb ? oP.om / 2 : 0)) * DT;
+    oeDr[i] = Math.cos(th); oeDi[i] = Math.sin(th);
+  }
+}
+function oInit() {
+  const nrm = Math.pow(2 * Math.PI * SIGMA * SIGMA, -0.25) / Math.SQRT2;
+  for (let i = 0; i < N; i++) {
+    const g = nrm * Math.exp(-Math.pow(x[i] - XPACK, 2) / (4 * SIGMA * SIGMA));
+    ouR[i] = g * Math.cos(oP.k0 * x[i]); ouI[i] = g * Math.sin(oP.k0 * x[i]);
+    odR[i] = ouR[i]; odI[i] = ouI[i];
+  }
+  oAbsL = 0; oAbsR = 0; oPwMax = -1; oSnap = null;
+}
+function oStepComp(re, im, er, ei) {
+  for (let i = 0; i < N; i++) { const r = re[i] * er[i] - im[i] * ei[i];
+    im[i] = re[i] * ei[i] + im[i] * er[i]; re[i] = r; }
+  fft(re, im, false);
+  for (let i = 0; i < N; i++) { const r = re[i] * expKr[i] - im[i] * expKi[i];
+    im[i] = re[i] * expKi[i] + im[i] * expKr[i]; re[i] = r; }
+  fft(re, im, true);
+  for (let i = 0; i < N; i++) { const r = re[i] * er[i] - im[i] * ei[i];
+    im[i] = re[i] * ei[i] + im[i] * er[i]; re[i] = r; }
+}
+function oStep() {
+  oStepComp(ouR, ouI, oeUr, oeUi);
+  oStepComp(odR, odI, oeDr, oeDi);
+  for (let i = 0; i < N; i++) if (mask[i] < 1) {
+    const p0 = (ouR[i] ** 2 + ouI[i] ** 2 + odR[i] ** 2 + odI[i] ** 2) * dx;
+    ouR[i] *= mask[i]; ouI[i] *= mask[i]; odR[i] *= mask[i]; odI[i] *= mask[i];
+    const lost = p0 - (ouR[i] ** 2 + ouI[i] ** 2 + odR[i] ** 2 + odI[i] ** 2) * dx;
+    if (i < N / 2) oAbsL += lost; else oAbsR += lost;
+  }
+}
+function oMeasure() {
+  const xr = oP.a / 2 + 2;
+  let Pw = 0, sx = 0, sy = 0, sz = 0;
+  for (let i = 0; i < N; i++) if (x[i] > xr) {
+    const pu = ouR[i] ** 2 + ouI[i] ** 2, pd = odR[i] ** 2 + odI[i] ** 2;
+    Pw += (pu + pd) * dx;
+    sx += 2 * (ouR[i] * odR[i] + ouI[i] * odI[i]) * dx;
+    sy += 2 * (ouR[i] * odI[i] - ouI[i] * odR[i]) * dx;
+    sz += (pu - pd) * dx;
+  }
+  if (Pw > 1e-12) { sx /= Pw; sy /= Pw; sz /= Pw; }
+  if (Pw > 1e-9 && Pw > oPwMax) {
+    oPwMax = Pw;
+    oSnap = { ty: -sy / oP.om, tz: sz / oP.om, T: Pw + oAbsR };
+  }
+  return { Pw, sx, sy, sz };
+}
+
+/* ---------- observatory drawing ---------- */
+const cvo = document.getElementById("cvo"), co = cvo.getContext("2d");
+let oScale = null;
+function oDraw(m) {
+  const W = cvo.width, H = cvo.height, base = H - 30;
+  co.clearRect(0, 0, W, H);
+  co.strokeStyle = "rgba(60,75,130,0.18)";
+  for (let g = 0; g <= 8; g++) { co.beginPath(); co.moveTo(g * W / 8, 0); co.lineTo(g * W / 8, H); co.stroke(); }
+  const xToPx = xx => (xx - X0) / L * W;
+  // Zeeman-split barrier: V0 +/- w/2 outlines
+  for (const [dv, alpha] of [[+oP.om / 2, 0.45], [-oP.om / 2, 0.45], [0, 0.9]]) {
+    co.beginPath(); co.moveTo(0, base);
+    for (let i = 0; i < N; i++) {
+      const v = oV[i] > 0 ? oV[i] + dv : 0;
+      co.lineTo(xToPx(x[i]), base - (v / VMAXPLOT) * (H - 70));
+    }
+    co.lineTo(W, base);
+    co.strokeStyle = `rgba(255,180,84,${alpha})`; co.lineWidth = dv === 0 ? 1.6 : 0.8; co.stroke();
+  }
+  // energy line
+  const E = 0.5 * oP.k0 * oP.k0 + 1 / (8 * SIGMA * SIGMA);
+  const ey = base - (E / VMAXPLOT) * (H - 70);
+  co.strokeStyle = "rgba(255,107,129,0.85)"; co.setLineDash([7, 6]);
+  co.beginPath(); co.moveTo(0, ey); co.lineTo(W, ey); co.stroke(); co.setLineDash([]);
+  // total density
+  if (oScale === null) {
+    let mx = 0;
+    for (let i = 0; i < N; i++) mx = Math.max(mx, ouR[i] ** 2 + ouI[i] ** 2 + odR[i] ** 2 + odI[i] ** 2);
+    oScale = mx * 1.15;
+  }
+  const grad = co.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "rgba(79,216,235,0.55)"); grad.addColorStop(1, "rgba(79,216,235,0.04)");
+  co.beginPath(); co.moveTo(0, base);
+  for (let i = 0; i < N; i++) {
+    const p = (ouR[i] ** 2 + ouI[i] ** 2 + odR[i] ** 2 + odI[i] ** 2) / oScale;
+    co.lineTo(xToPx(x[i]), base - Math.min(p, 1.25) * (H - 80));
+  }
+  co.lineTo(W, base); co.closePath(); co.fillStyle = grad; co.fill();
+  // spin dial (transmitted window)
+  const cx = W - 95, cy = 88, r = 48;
+  co.beginPath(); co.arc(cx, cy, r, 0, 2 * Math.PI);
+  co.fillStyle = "rgba(0,0,0,0.45)"; co.fill();
+  co.strokeStyle = "rgba(93,222,154,0.7)"; co.lineWidth = 1.2; co.stroke();
+  co.strokeStyle = "rgba(138,148,176,0.4)";
+  co.beginPath(); co.moveTo(cx - r, cy); co.lineTo(cx + r, cy); co.stroke();
+  co.beginPath(); co.moveTo(cx, cy - r); co.lineTo(cx, cy + r); co.stroke();
+  const mag = Math.hypot(m.sx, m.sy);
+  if (mag > 1e-6) {
+    const ux = m.sx / Math.max(mag, 1e-9), uy = m.sy / Math.max(mag, 1e-9);
+    co.strokeStyle = "#5dde9a"; co.lineWidth = 2.4;
+    co.beginPath(); co.moveTo(cx, cy);
+    co.lineTo(cx + ux * r * 0.85, cy - uy * r * 0.85); co.stroke();
+  }
+  co.fillStyle = "#8a94b0"; co.font = "10px Consolas, monospace";
+  co.fillText("σx→", cx + r - 24, cy - 5);
+  co.fillText("σy↑", cx + 4, cy - r + 12);
+  // sigma_z gauge
+  const gx2 = cx + r + 14;
+  co.strokeStyle = "rgba(255,107,129,0.6)";
+  co.strokeRect(gx2, cy - r, 8, 2 * r);
+  const zH = Math.max(-1, Math.min(1, m.sz)) * r;
+  co.fillStyle = "rgba(255,107,129,0.8)";
+  co.fillRect(gx2, cy - Math.max(zH, 0), 8, Math.abs(zH));
+  co.fillStyle = "#8a94b0"; co.fillText("σz", gx2 - 2, cy + r + 12);
+}
+
+/* ---------- clock-time curves (Hartman plot) ---------- */
+const cvo2 = document.getElementById("cvo2"), co2 = cvo2.getContext("2d");
+function oCurves() {
+  const W = cvo2.width, H = cvo2.height, mL = 56, mB = 34, mT = 14, mR = 14;
+  const pw = W - mL - mR, ph = H - mT - mB;
+  co2.clearRect(0, 0, W, H);
+  const E = 0.5 * oP.k0 * oP.k0, V0 = oP.v0;
+  const aMin = 0.3, aMax = 12, M = 240;
+  const cs = { tphi: [], ty: [], tz: [], tbl: [], free: [] };
+  for (let i = 0; i <= M; i++) {
+    const a = aMin + (aMax - aMin) * i / M;
+    const c = clockTimes(E, V0, a);
+    cs.tphi.push(c.tphi); cs.ty.push(c.ty); cs.tz.push(c.tz);
+    cs.tbl.push(c.tbl); cs.free.push(a / Math.sqrt(2 * E));
+  }
+  const ymax = 1.3 * Math.max(...cs.tphi.filter(isFinite), ...cs.ty.filter(isFinite), 1.2);
+  const xOf = i => mL + pw * i / M, yOf = v => mT + ph * (1 - Math.max(0, Math.min(v, ymax)) / ymax);
+  co2.strokeStyle = "rgba(60,75,130,0.35)"; co2.font = "11px Consolas, monospace"; co2.fillStyle = "#8a94b0";
+  for (let g = 0; g <= 4; g++) {
+    const v = ymax * g / 4, y = yOf(v);
+    co2.beginPath(); co2.moveTo(mL, y); co2.lineTo(W - mR, y); co2.stroke();
+    co2.fillText(v.toFixed(2), 8, y + 4);
+  }
+  for (let g = 0; g <= 6; g++) {
+    const a = aMin + (aMax - aMin) * g / 6, px = mL + pw * g / 6;
+    co2.beginPath(); co2.moveTo(px, mT); co2.lineTo(px, H - mB); co2.stroke();
+    co2.fillText(a.toFixed(1), px - 8, H - mB + 16);
+  }
+  co2.fillText("barrier width a   (E, V₀ from the controls above)", W / 2 - 130, H - 5);
+  const plot = (arr, color, dash) => {
+    co2.strokeStyle = color; co2.lineWidth = 1.8; co2.setLineDash(dash || []);
+    co2.beginPath(); let started = false;
+    for (let i = 0; i <= M; i++) {
+      if (!isFinite(arr[i]) || arr[i] > ymax * 1.6) { started = false; continue; }
+      const px = xOf(i), py = yOf(arr[i]);
+      if (!started) { co2.moveTo(px, py); started = true; } else co2.lineTo(px, py);
+    }
+    co2.stroke(); co2.setLineDash([]);
+  };
+  plot(cs.free, "#777", [4, 5]);
+  plot(cs.tbl, "#9d7bff", [4, 5]);
+  plot(cs.tz, "#ff6b81");
+  plot(cs.ty, "#5dde9a");
+  plot(cs.tphi, "#4fd8eb");
+  if (E >= V0) {
+    co2.fillStyle = "rgba(255,180,84,0.9)";
+    co2.fillText("E ≥ V₀ — lower k₀ or raise V₀ to enter the tunneling regime", mL + 14, mT + 18);
+  }
+}
+
+/* ---------- observatory UI + loop ---------- */
+function oResetSim() { oRead(); oBuild(); oInit(); oScale = null; oCurves(); oStats(); }
+function oStats() {
+  const E = 0.5 * oP.k0 * oP.k0;
+  const c = clockTimes(E, oP.v0, oP.a);
+  $("otyA").textContent = c.ty.toFixed(3);
+  $("otzA").textContent = c.tz.toFixed(3);
+  $("otphi").textContent = c.tphi.toFixed(3);
+  $("otbl").textContent = isFinite(c.tbl) ? c.tbl.toFixed(3) : "—";
+}
+["ov0", "oa", "ok0", "oom"].forEach(id => $(id).addEventListener("input", oResetSim));
+$("orunbtn").addEventListener("click", () => {
+  oRun = !oRun; $("orunbtn").textContent = oRun ? "Pause" : "Run";
+});
+$("oresetbtn").addEventListener("click", oResetSim);
+
+function oTick() {
+  if (oRun) for (let s = 0; s < 15; s++) oStep();
+  const m = oMeasure();
+  oDraw(m);
+  if (oSnap) {
+    $("otyM").textContent = oSnap.ty.toFixed(3);
+    $("otzM").textContent = oSnap.tz.toFixed(3);
+    $("oT").textContent = (oSnap.T * 100).toFixed(2) + "%";
+  }
+  requestAnimationFrame(oTick);
+}
+oResetSim();
+requestAnimationFrame(oTick);
+
+/* ================================================================
+   MODULE 4 — false vacuum bubble nucleation (visual analogue)
+   ================================================================ */
+const cv3 = document.getElementById("cv3"), c3 = cv3.getContext("2d");
+let bubbles = [], vacT = 0, vacRunning = true, nucleated = 0;
+const VMAXW = 90;   // asymptotic wall speed, px/s
+const TAU = 1.6;    // wall acceleration timescale, s
+let lastT3 = null;
+
+function radius(b, t) {
+  const dt = t - b.t0;
+  return VMAXW * (dt - TAU * (1 - Math.exp(-dt / TAU))) + 3;
+}
+function inTrueVacuum(px, py, t) {
+  for (const b of bubbles) {
+    const r = radius(b, t);
+    const dxp = px - b.x, dyp = py - b.y;
+    if (dxp * dxp + dyp * dyp < r * r) return true;
+  }
+  return false;
+}
+function vacReset() {
+  bubbles = []; vacT = 0; nucleated = 0; lastT3 = null;
+  $("bubv").textContent = "0"; $("fracv").textContent = "0.0%";
+}
+$("vacreset").addEventListener("click", vacReset);
+$("vacrun").addEventListener("click", () => {
+  vacRunning = !vacRunning;
+  $("vacrun").textContent = vacRunning ? "Pause" : "Run";
+});
+
+function draw3(ts) {
+  const W = cv3.width, H = cv3.height;
+  if (lastT3 === null) lastT3 = ts;
+  const dt = Math.min((ts - lastT3) / 1000, 0.05);
+  lastT3 = ts;
+  if (vacRunning) {
+    vacT += dt;
+    // nucleation: Poisson, rate Gamma = G0 * exp(-B)
+    const B = parseFloat($("rate").value);
+    $("ratev").textContent = "B = " + B.toFixed(1) + "  (Γ ∝ e^−B)";
+    const gamma = 220 * Math.exp(-B);                 // events/s over the whole box
+    if (Math.random() < gamma * dt) {
+      const px = 20 + Math.random() * (W - 40), py = 20 + Math.random() * (H - 40);
+      if (!inTrueVacuum(px, py, vacT)) {
+        bubbles.push({ x: px, y: py, t0: vacT });
+        nucleated++;
+        $("bubv").textContent = nucleated;
+      }
+    }
+  }
+  // background: false vacuum shimmer
+  c3.fillStyle = "#0d1330"; c3.fillRect(0, 0, W, H);
+  c3.fillStyle = "rgba(157,123,255,0.06)";
+  for (let i = 0; i < 40; i++) {
+    const sx = (i * 137.5 + vacT * 12) % W;
+    const sy = (i * 89.7 + 0.5 * vacT * 17) % H;
+    c3.fillRect(sx, sy, 2, 2);
+  }
+  // bubbles: true vacuum
+  for (const b of bubbles) {
+    const r = radius(b, vacT);
+    const g = c3.createRadialGradient(b.x, b.y, Math.max(r - 14, 0), b.x, b.y, r);
+    g.addColorStop(0, "rgba(4,6,13,0.97)");
+    g.addColorStop(0.82, "rgba(8,12,26,0.97)");
+    g.addColorStop(1, "rgba(79,216,235,0.85)");      // glowing wall
+    c3.fillStyle = g;
+    c3.beginPath(); c3.arc(b.x, b.y, r, 0, 2 * Math.PI); c3.fill();
+  }
+  // converted fraction (coarse Monte Carlo sample)
+  if (vacRunning && bubbles.length) {
+    let hit = 0; const S = 300;
+    for (let s = 0; s < S; s++) {
+      if (inTrueVacuum(Math.random() * W, Math.random() * H, vacT)) hit++;
+    }
+    const f = hit / S;
+    $("fracv").textContent = (f * 100).toFixed(1) + "%";
+    if (f > 0.995) {
+      c3.fillStyle = "rgba(79,216,235,0.9)";
+      c3.font = "20px Consolas, monospace";
+      c3.fillText("VACUUM DECAYED — new physical constants apply", W / 2 - 240, H / 2);
+      vacRunning = false; $("vacrun").textContent = "Run";
+    }
+  }
+  requestAnimationFrame(draw3);
+}
+$("ratev").textContent = "B = 6.0  (Γ ∝ e^−B)";
+requestAnimationFrame(draw3);
+/* end of modules */
+</script>
+</body>
+</html>

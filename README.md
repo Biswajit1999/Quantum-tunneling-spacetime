@@ -230,29 +230,6 @@ All technical claims and historical references should be cited in `docs/referenc
 
 ---
 
-## Image-generation prompt library
-
-The repository includes a curated prompt library for hero art, explainer diagrams,
-and social visuals:
-
-```text
-image-prompts/PROMPTS.md
-```
-
-Recommended project palette:
-
-| Role       | Hex       |
-| ---------- | --------- |
-| Background | `#04060d` |
-| Cyan       | `#4fd8eb` |
-| Violet     | `#9d7bff` |
-| Amber      | `#ffb454` |
-
-For diagram-style images, generate without labels and add labels later manually in
-HTML, SVG, or a design editor. Generated text is usually unreliable.
-
----
-
 ## License
 
 MIT — see `LICENSE`.

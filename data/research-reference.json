@@ -1,0 +1,28 @@
+{
+  "title": "Quantum Tunneling Spacetime",
+  "description": "Quantum tunneling and semiclassical spacetime lab covering wave-packet barriers, Klein tunneling, false-vacuum decay and Hawking analogies.",
+  "equations": [
+    "Time-dependent Schrodinger equation",
+    "WKB transmission T approx exp(-2 integral sqrt(2m(V-E))/hbar dx)"
+  ],
+  "references": [
+    "Griffiths, D.J. and Schroeter, D.F., 2018. Introduction to Quantum Mechanics. Cambridge University Press."
+  ],
+  "anchors": [
+    {
+      "x": 0.5,
+      "y": 0.018,
+      "label": "deep WKB barrier"
+    },
+    {
+      "x": 0.9,
+      "y": 0.31,
+      "label": "near-barrier tunneling"
+    },
+    {
+      "x": 1.2,
+      "y": 1,
+      "label": "above-barrier transmission"
+    }
+  ]
+}

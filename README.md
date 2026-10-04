@@ -233,7 +233,3 @@ All technical claims and historical references should be cited in `docs/referenc
 ## License
 
 MIT — see `LICENSE`.
-
-## Research Quality Upgrade
-
-See [RESEARCH_QUALITY.md](RESEARCH_QUALITY.md) for the validation layer, reference anchors, equations and research boundaries added to this repository.

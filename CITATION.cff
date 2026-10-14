@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this research software, please cite it using this metadata."
+title: "Quantum Tunneling in Spacetime — Interactive Simulation"
+abstract: "Live Schrödinger split-operator simulation of quantum tunneling, transmission explorer, and false vacuum decay of spacetime."
+type: software
+authors:
+  - family-names: Jana
+    given-names: Biswajit
+repository-code: "https://github.com/Biswajit1999/Quantum-tunneling-spacetime"
+url: "https://biswajit1999.github.io/Quantum-tunneling-spacetime/"
+keywords:
+  - "astronomy"
+  - "astrophysics"
+  - "scientific computing"
+  - "quantum mechanics"
+  - "numerical simulation"
+  - "physics education"
